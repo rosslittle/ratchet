@@ -3,7 +3,6 @@
 // Adapted from phantom limb by Brian Cartensen
 
 /* jshint bitwise: false */
-/* global GLOBAL: true */
 
 (function () {
 
@@ -160,14 +159,14 @@
       var onEventName = 'on' + eventName;
 
       if (onEventName in this.target) {
-        console.warn('Converting `' + onEventName + '` property to event listener.', this.target);
         this.target.addEventListener(eventName, this.target[onEventName], false);
         delete this.target[onEventName];
       }
 
       if (this.target.hasAttribute(onEventName)) {
-        console.warn('Converting `' + onEventName + '` attribute to event listener.', this.target);
-        var handler = new GLOBAL.Function('event', this.target.getAttribute(onEventName));
+        var handler = function () {
+          return this.target.getAttribute(onEventName);
+        };
         this.target.addEventListener(eventName, handler, false);
         this.target.removeAttribute(onEventName);
       }
@@ -197,34 +196,34 @@
           gestureName = 'gestureend';
         }
 
-        events.forEach(function(event) {
+        events.forEach(function (event) {
           var gesture = this.createMouseEvent.call(event._finger, gestureName, event);
           gestures.push(gesture);
         }.bind(this));
 
-        events.concat(gestures).forEach(function(event) {
+        events.concat(gestures).forEach(function (event) {
           event.scale = distance / this.startDistance;
           event.rotation = this.startAngle - angle;
         });
       }
 
       // Loop through the events array and fill in each touch array.
-      events.forEach(function(touch) {
-        touch.touches = events.filter(function(e) {
+      events.forEach(function (touch) {
+        touch.touches = events.filter(function (e) {
           return ~e.type.indexOf('touch') && e.type !== 'touchend';
         });
 
-        touch.changedTouches = events.filter(function(e) {
+        touch.changedTouches = events.filter(function (e) {
           return ~e.type.indexOf('touch') && e._finger.target === touch._finger.target;
         });
 
-        touch.targetTouches = touch.changedTouches.filter(function(e) {
+        touch.targetTouches = touch.changedTouches.filter(function (e) {
           return ~e.type.indexOf('touch') && e.type !== 'touchend';
         });
       });
 
       // Then fire the events.
-      events.concat(gestures).forEach(function(event, i) {
+      events.concat(gestures).forEach(function (event, i) {
         event.identifier = i;
         event._finger.target.dispatchEvent(event);
       });

@@ -54,8 +54,7 @@
 
   var getScroll = function () {
     var translate3d = slider.style[transformProperty].match(/translate3d\(([^,]*)/);
-    var ret = translate3d ? translate3d[1] : 0;
-    return parseInt(ret, 10);
+    return parseInt(translate3d ? translate3d[1] : 0, 10);
   };
 
   var setSlideNumber = function (offset) {
